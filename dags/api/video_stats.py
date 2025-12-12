@@ -3,12 +3,14 @@ import json
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+from airflow.decorators import task
 load_dotenv(dotenv_path="./.env")
 
-api_key = os.getenv('api_key')
-CHANNEL_Handle = "MrBeast"
+api_key = os.getenv('API_KEY')
+CHANNEL_Handle = os.getenv('CHANNEL_Handle')
 max_results = 50
 
+@task
 def get_playlist_id(api_key, CHANNEL_Handle):
   try:
     url = f"https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={CHANNEL_Handle}&key={api_key}"
@@ -25,6 +27,7 @@ def get_playlist_id(api_key, CHANNEL_Handle):
     raise e
     print("An error occurred while fetching the playlist ID:", str(e))
     return None
+@task
 def get_video_ids(playlist_id, api_key=api_key, max_results=50):
   video_ids = []
   pageToken = None
@@ -59,7 +62,7 @@ def get_video_ids(playlist_id, api_key=api_key, max_results=50):
 
 
 
-
+@task
 def extract_video_data(video_ids):
     all_video_data = []
 
@@ -99,7 +102,7 @@ def extract_video_data(video_ids):
         raise e
         print("An error occurred while fetching video data:", str(e))
         return all_video_data
-    
+@task
 def save_to_json(extracted_data):
     file_path = f"./data/video_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 
