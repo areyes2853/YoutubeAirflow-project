@@ -2,6 +2,7 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 load_dotenv(dotenv_path="./.env")
 
 api_key = os.getenv('api_key')
@@ -98,13 +99,20 @@ def extract_video_data(video_ids):
         raise e
         print("An error occurred while fetching video data:", str(e))
         return all_video_data
+    
+def save_to_json(extracted_data):
+    file_path = f"./data/video_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 
+    with open(file_path, 'w', encoding="Utf-8") as json_file:
+       json.dump(extracted_data, json_file, indent=4, ensure_ascii=False)
+   
 
-
-url = f"https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&part=statistics&id=0e3GP&key=AIzaSyChvlwPePW9z0TzBctC01XnXg8jzveqptk"
+# url = f"https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&part=statistics&id=0e3GP&key=AIzaSyChvlwPePW9z0TzBctC01XnXg8jzveqptk"
 
 if __name__ == "__main__":
    playlistId = get_playlist_id(api_key, CHANNEL_Handle)
    video_ids = get_video_ids(playlistId)
+   video_data = extract_video_data(video_ids)
+   save_to_json(video_data)
    print(extract_video_data(video_ids))
   # print("Playlist ID:", get_video_ids(playlistId))
